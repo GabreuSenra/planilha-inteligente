@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export default function BlockConfigModal({ open, onClose, onSave, initialData }) {
+export default function BlockConfigModal({ open, onClose, onSave, initialData, sheets }) {
   const [fieldName, setFieldName] = useState("");
   const [type, setType] = useState("text");
   const [options, setOptions] = useState("");
@@ -8,17 +8,22 @@ export default function BlockConfigModal({ open, onClose, onSave, initialData })
 
   useEffect(() => {
     if (initialData) {
-      setFieldName(initialData.fieldName || "");
-      setType(initialData.type || "text");
-      setOptions((initialData.options || []).join(", "));
-      setSheetName(initialData.sheetName || "Cadastro");
+      const { sheetIdx, fieldIdx } = initialData;
+      const field = sheets[sheetIdx]?.fields[fieldIdx];
+
+      if (field) {
+        setFieldName(field.fieldName || "");
+        setType(field.type || "text");
+        setOptions((field.options || []).join(", "));
+        setSheetName(sheets[sheetIdx]?.sheetName || "Cadastro");
+      }
     } else {
       setFieldName("");
       setType("text");
       setOptions("");
       setSheetName("Cadastro");
     }
-  }, [initialData, open]);
+  }, [initialData, open, sheets]);
 
   if (!open) return null;
 
