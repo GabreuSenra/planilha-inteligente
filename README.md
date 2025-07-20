@@ -14,9 +14,9 @@ Uma aplicação React interativa para criar planilhas do Google Sheets de forma 
 
 ## Interface
 
-- `**Sidebar:**` contém templates de blocos prontos para arrastar
-- **Canvas:** área onde você adiciona planilhas e define campos
-- **Modal de Configuração:** edita propriedades como tipo, opções, formatação, fórmula, etc.
+- `Sidebar:` contém templates de blocos prontos para arrastar
+- `Canvas:` área onde você adiciona planilhas e define campos
+- `Modal de Configuração:` edita propriedades como tipo, opções, formatação, fórmula, etc.
 
 
 ## 📦 Tecnologias
@@ -38,8 +38,8 @@ Uma aplicação React interativa para criar planilhas do Google Sheets de forma 
 `npm run dev`
 
 ## Como usar o código gerado
--Acesse https://script.google.com
--Crie um novo projeto Apps Script
--Copie e cole o código gerado no editor
--Execute a função setupSheets
--Sua planilha será criada automaticamente no Google Sheets com as estruturas definidas
+- Acesse https://script.google.com
+- Crie um novo projeto Apps Script
+- Copie e cole o código gerado no editor
+- Execute a função setupSheets
+- Sua planilha será criada automaticamente no Google Sheets com as estruturas definidas
