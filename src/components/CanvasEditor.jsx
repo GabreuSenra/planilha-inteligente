@@ -4,13 +4,9 @@ import BlockCanvas from './BlockCanvas';
 import BlockTemplates from './BlockTemplates';
 import { DragDropContext } from "@hello-pangea/dnd";
 import SheetsCanvas from './SheetCanvas';
+import templates from "@/utils/blockTemplates";
 
-const templates = [
-  { type: "text", fieldName: "Texto", options: [], sheetName: "Cadastro" },
-  { type: "number", fieldName: "Número", options: [], sheetName: "Cadastro" },
-  { type: "dropdown", fieldName: "Dropdown", options: ["Opção 1", "Opção 2"], sheetName: "Cadastro" },
-  { type: "date", fieldName: "Data", options: [], sheetName: "Cadastro" },
-];
+
 
 export default function CanvasEditor() {
   const [blocks, setBlocks] = useState([]);
@@ -18,6 +14,7 @@ export default function CanvasEditor() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
   const [generatedCode, setGeneratedCode] = useState('');
+  const [rowCount, setRowCount] = useState(1000); // Valor padrão: 1000 linhas
 
   const handleAddBlock = () => {
     setEditingIndex(null);
@@ -123,11 +120,11 @@ export default function CanvasEditor() {
   const generateGoogleSheetsScript = () => {
     const codeLines = [
       `function setupSheets() {`,
-      `  const ss = SpreadsheetApp.getActiveSpreadsheet();`
+      `  const ss = SpreadsheetApp.getActiveSpreadsheet();`,
+      `  const rowCount = ${rowCount};  // Número de linhas personalizado`
     ];
 
     sheets.forEach((sheet, index) => {
-      // Usando um nome de variável único por planilha
       const sheetVar = `sheet${index + 1}`;
 
       codeLines.push(`  let ${sheetVar} = ss.getSheetByName("${sheet.sheetName}");`);
@@ -138,10 +135,8 @@ export default function CanvasEditor() {
       codeLines.push(`  ${sheetVar}.appendRow([${headers}]);`);
 
       sheet.fields.forEach((field, fieldIndex) => {
-        // Tornar o nome do range único para cada campo e planilha
         const rangeVar = `range${index + 1}_${fieldIndex}`;
-
-        codeLines.push(`  let ${rangeVar} = ${sheetVar}.getRange(2, ${fieldIndex + 1}, 1000);`);
+        codeLines.push(`  let ${rangeVar} = ${sheetVar}.getRange(2, ${fieldIndex + 1}, rowCount);`);
         codeLines.push(`  ${rangeVar}.setDataValidation(null);`);
 
         if (field.type === 'dropdown' && field.options.length > 0) {
@@ -151,19 +146,49 @@ export default function CanvasEditor() {
   .build();
   ${rangeVar}.setDataValidation(rule${index + 1}_${fieldIndex});`);
         } else if (field.type === 'number') {
+          const isFloat = field.numberFormat === 'float';
+          const decimals = isFloat ? (parseInt(field.decimalPlaces) || 2) : 0;
+          const format = isFloat ? `0.${'0'.repeat(decimals)}` : '0';
           codeLines.push(`  let rule${index + 1}_${fieldIndex} = SpreadsheetApp.newDataValidation()
   .requireNumberBetween(-1e100, 1e100)
   .build();
   ${rangeVar}.setDataValidation(rule${index + 1}_${fieldIndex});
-  ${rangeVar}.setNumberFormat("0.00");`);
+  ${rangeVar}.setNumberFormat("${format}");`);
         } else if (field.type === 'date') {
           codeLines.push(`  let rule${index + 1}_${fieldIndex} = SpreadsheetApp.newDataValidation()
   .requireDate()
   .build();
   ${rangeVar}.setDataValidation(rule${index + 1}_${fieldIndex});
   ${rangeVar}.setNumberFormat("dd/mm/yyyy");`);
+        } else if (field.type === 'money') {
+          codeLines.push(`  ${rangeVar}.setNumberFormat("R$ #,##0.00");`);
+        } else if (field.type === 'percentage') {
+          codeLines.push(`  ${rangeVar}.setNumberFormat("0.00%");`);
+        } else if (field.type === 'time') {
+          codeLines.push(`  ${rangeVar}.setNumberFormat("hh:mm:ss");`);
+        } else if (field.type === 'checkbox') {
+          codeLines.push(`  ${rangeVar}.insertCheckboxes();`);
+        } else if (field.type === 'autoId') {
+          codeLines.push(`  for (let i = 0; i < rowCount; i++) {
+    ${sheetVar}.getRange(i + 2, ${fieldIndex + 1}).setValue(i + 1);
+  }`);
+        } else if (field.type === 'formula') {
+          codeLines.push(`  for (let i = 0; i < rowCount; i++) {`);
+
+          // Processa todos os padrões ${row±n}
+          let dynamicFormula = field.formula.replace(/\$\{row([+-]\d+)?\}/g, (match, offset) => {
+            if (!offset) return '${i + 2}'; // ${row}
+            return '${i + 2' + offset + '}'; // ${row+n} ou ${row-n}
+          });
+
+          // Garante que fórmulas começam com =
+          if (!dynamicFormula.startsWith('=')) {
+            dynamicFormula = '=' + dynamicFormula;
+          }
+
+          codeLines.push(`    ${sheetVar}.getRange(i + 2, ${fieldIndex + 1}).setFormula(\`${dynamicFormula}\`);`);
+          codeLines.push(`  }`);
         }
-        // Para texto, só limpa a validação
       });
     });
 
@@ -188,10 +213,36 @@ export default function CanvasEditor() {
               >
                 Adicionar Planilha
               </button>
-              <button onClick={generateGoogleSheetsScript} className="px-4 py-2 bg-green-600 text-white rounded">
+
+              {/* Controle do Número de Linhas - NOVO! */}
+              <div className="flex items-center gap-2 bg-white border rounded px-3 py-2">
+                <label className="text-sm font-medium">Linhas:</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={rowCount}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    setRowCount(value >= 1 ? value : 1);
+                  }}
+                  className="w-20 border-b border-gray-300 px-1 text-center"
+                />
+                <button
+                  onClick={() => setRowCount(1000)}
+                  className="text-xs text-blue-600 hover:text-blue-800"
+                >
+                  Padrão
+                </button>
+              </div>
+
+              <button
+                onClick={generateGoogleSheetsScript}
+                className="px-4 py-2 bg-green-600 text-white rounded"
+              >
                 Gerar Código
               </button>
             </div>
+
             <SheetsCanvas
               sheets={sheets}
               onEditField={handleEditField}
@@ -199,11 +250,12 @@ export default function CanvasEditor() {
               onEditSheetName={handleEditSheetName}
               onDeleteSheet={handleDeleteSheet}
             />
+
             {generatedCode && (
               <div className="mt-6">
                 <h3 className="text-lg font-semibold mb-2">Código Gerado:</h3>
                 <textarea
-                  className="w-full p-2 border rounded bg-gray-100 text-sm"
+                  className="w-full p-2 border rounded bg-gray-100 text-sm font-mono"
                   rows={generatedCode.split('\n').length + 2}
                   readOnly
                   value={generatedCode}
@@ -212,12 +264,13 @@ export default function CanvasEditor() {
             )}
           </div>
         </div>
+
         <BlockConfigModal
           open={modalOpen}
           onClose={() => setModalOpen(false)}
           onSave={handleSaveBlock}
           initialData={editingIndex !== null ? editingIndex : null}
-          sheets={sheets} // Passando as sheets para o modal
+          sheets={sheets}
         />
       </div>
     </DragDropContext>

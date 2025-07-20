@@ -1,11 +1,7 @@
 import { Draggable, Droppable } from "@hello-pangea/dnd";
+import templates from "@/utils/blockTemplates";
 
-const templates = [
-  { type: "text", fieldName: "Texto", options: [], sheetName: "Cadastro" },
-  { type: "number", fieldName: "Número", options: [], sheetName: "Cadastro" },
-  { type: "dropdown", fieldName: "Dropdown", options: ["Opção 1", "Opção 2"], sheetName: "Cadastro" },
-  { type: "date", fieldName: "Data", options: [], sheetName: "Cadastro" },
-];
+
 
 export default function BlockTemplates() {
   return (
@@ -18,7 +14,7 @@ export default function BlockTemplates() {
         >
           <h3 className="font-semibold mb-2 text-center">Templates</h3>
           {templates.map((tpl, idx) => (
-            <Draggable key={tpl.type} draggableId={`tpl-${tpl.type}`} index={idx}>
+            <Draggable key={tpl.fieldName + idx} draggableId={`tpl-${tpl.fieldName}-${idx}`} index={idx}>
               {(provided) => (
                 <div
                   ref={provided.innerRef}

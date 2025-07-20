@@ -1,12 +1,45 @@
-# React + Vite
+# Editor de Planilhas Inteligentes
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Uma aplicação React interativa para criar planilhas do Google Sheets de forma visual e eficiente. Com blocos pré-configurados e uma interface drag-and-drop, o sistema permite estruturar abas, colunas e validações com facilidade, e ao final, gerar o código Apps Script para ser usado diretamente no Google Sheets.
 
-Currently, two official plugins are available:
+## Funcionalidades
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Criação visual de planilhas com múltiplas abas
+- Templates de campos (Texto, Número, Data, Dropdown, etc...)
+- Sistema de arrastar e soltar com suporte a reordenação
+- Configuração individual de blocos com validações inteligentes
+- Geração automática de código para uso no Google Apps Script
+- Interface moderna e intuitiva
 
-## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Interface
+
+- **Sidebar:** contém templates de blocos prontos para arrastar
+- **Canvas:** área onde você adiciona planilhas e define campos
+- **Modal de Configuração:** edita propriedades como tipo, opções, formatação, fórmula, etc.
+
+
+## 📦 Tecnologias
+
+- [React](https://reactjs.org/)
+- [TailwindCSS](https://tailwindcss.com/)
+- [@hello-pangea/dnd](https://github.com/hello-pangea/dnd) (Drag and Drop)
+- Google Apps Script (como destino do código gerado)
+
+
+## Como usar
+
+1. **Clone o repositório**
+git clone https://github.com/GabreuSenra/planilha-inteligente.git
+cd planilha-inteligente
+2. **Instale as dependências**
+npm install
+3. **Inicie o servidor localmente**
+npm run dev
+
+## Como usar o código gerado
+-Acesse https://script.google.com
+-Crie um novo projeto Apps Script
+-Copie e cole o código gerado no editor
+-Execute a função setupSheets
+-Sua planilha será criada automaticamente no Google Sheets com as estruturas definidas
