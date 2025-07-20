@@ -14,7 +14,7 @@ Uma aplicação React interativa para criar planilhas do Google Sheets de forma 
 
 ## Interface
 
-- **Sidebar:** contém templates de blocos prontos para arrastar
+- `**Sidebar:**` contém templates de blocos prontos para arrastar
 - **Canvas:** área onde você adiciona planilhas e define campos
 - **Modal de Configuração:** edita propriedades como tipo, opções, formatação, fórmula, etc.
 
@@ -30,12 +30,12 @@ Uma aplicação React interativa para criar planilhas do Google Sheets de forma 
 ## Como usar
 
 1. **Clone o repositório**
-git clone https://github.com/GabreuSenra/planilha-inteligente.git
-cd planilha-inteligente
+`git clone https://github.com/GabreuSenra/planilha-inteligente.git`
+`cd planilha-inteligente`
 2. **Instale as dependências**
-npm install
+`npm install`
 3. **Inicie o servidor localmente**
-npm run dev
+`npm run dev`
 
 ## Como usar o código gerado
 -Acesse https://script.google.com
